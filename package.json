@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/noto-serif-jp": "^5.2.8",
+    "@react-pdf/renderer": "^4.3.2",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
