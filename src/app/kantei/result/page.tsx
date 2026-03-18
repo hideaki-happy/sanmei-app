@@ -32,6 +32,7 @@ function ResultContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [autoDownload, setAutoDownload] = useState(false);
   const birthdayRef = useRef("");
   const genderRef = useRef("");
   const nameRef = useRef("");
@@ -60,6 +61,7 @@ function ResultContent() {
         const r = processKantei({ name, year: y, month: m, day: d, gender });
         if (!r) throw new Error("対応範囲外の年です（1874〜2050）");
         setResult(r);
+        setAutoDownload(true);
       })
       .catch((e) => {
         if (e.message === "payment_required") {
@@ -102,6 +104,14 @@ function ResultContent() {
       setPdfLoading(false);
     }
   }, [result, currentYear]);
+
+  // 決済完了後に自動ダウンロード
+  useEffect(() => {
+    if (autoDownload && result) {
+      setAutoDownload(false);
+      downloadPdf();
+    }
+  }, [autoDownload, result, downloadPdf]);
 
   if (loading) {
     return (

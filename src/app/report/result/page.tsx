@@ -76,6 +76,8 @@ function ResultContent() {
         const r = processKantei({ name, year: y, month: m, day: d, gender });
         if (!r) throw new Error("対応範囲外の年です（1874〜2050）");
         setResult(r);
+        // 決済完了後に自動で印刷ダイアログ（PDF保存）を開く
+        setTimeout(() => window.print(), 800);
       })
       .catch((e) => {
         if (e.message === "payment_required") {
