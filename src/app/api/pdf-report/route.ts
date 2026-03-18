@@ -24,18 +24,11 @@ export async function POST(req: NextRequest) {
   };
   registerFonts(toDataUrl("NotoSerifJP-Regular.ttf"), toDataUrl("NotoSerifJP-Bold.ttf"));
 
-  // 干支画像を base64 で読み込む
+  // 干支画像はパブリックURLで指定（ファイル読み込みはサイズ制限超過のため使用不可）
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const imageId = String(result.nichi.id).padStart(2, "0");
   const nichiKanshi = result.nichi.k + result.nichi.s;
-  let imageSrc: string | undefined;
-  try {
-    const imgBuf = readFileSync(
-      path.join(process.cwd(), "public", "image", "kanshi", `${imageId}_${nichiKanshi}.png`)
-    );
-    imageSrc = `data:image/png;base64,${imgBuf.toString("base64")}`;
-  } catch {
-    // 画像が見つからない場合はスキップ
-  }
+  const imageSrc = `${appUrl}/image/kanshi/${imageId}_${nichiKanshi}.png`;
 
   let buffer: Buffer;
   try {
