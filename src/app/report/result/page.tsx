@@ -6,16 +6,7 @@ import Image from "next/image";
 import type { KanteiResult } from "@/types/sanmei";
 import { processKantei } from "@/lib/sanmei";
 import { getKanshiMessage, getSyuseiMessage, getUnkiMessage } from "@/lib/report/messages";
-
-// ─── 定数 ────────────────────────────────────────────────
-const C = {
-  bg: "#FAFAF6",
-  heading: "#2C3E2D",
-  border: "#C8D0C2",
-  rowAlt: "#F4F7F3",
-  highlight: "#FFF9E6",
-  tableHeader: "#E8EFE7",
-};
+import { getGogyouTheme } from "@/lib/report/gogyouTheme";
 
 const POSITIONS = [
   { key: "c" as const, label: "中央（本人）" },
@@ -35,12 +26,12 @@ const POSITION_LABEL_MAP: Record<string, string> = {
 };
 
 // ─── セクション見出し ─────────────────────────────────────
-function SectionHeading({ title }: { title: string }) {
+function SectionHeading({ title, color }: { title: string; color: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <h2
         className="text-lg font-bold tracking-widest pb-1 border-b-2"
-        style={{ color: C.heading, borderColor: C.heading }}
+        style={{ color, borderColor: color }}
       >
         【{title}】
       </h2>
@@ -57,11 +48,13 @@ function ResultContent() {
   const [error, setError] = useState("");
   const [pdfLoading, setPdfLoading] = useState(false);
   const [autoDownload, setAutoDownload] = useState(false);
+  const [element, setElement] = useState("木"); // 五行（初期値=木）
   const birthdayRef = useRef("");
   const genderRef = useRef("");
   const nameRef = useRef("");
 
   const currentYear = new Date().getFullYear();
+  const C = getGogyouTheme(element);
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -84,6 +77,7 @@ function ResultContent() {
         const [y, m, d] = birthday.split("-");
         const r = processKantei({ name, year: y, month: m, day: d, gender });
         if (!r) throw new Error("対応範囲外の年です（1874〜2050）");
+        setElement(r.hachimon.cL);
         setResult(r);
         setAutoDownload(true);
       })
@@ -228,7 +222,7 @@ function ResultContent() {
 
         {/* ─── 1. あなたの本質 ──────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="あなたの本質" />
+          <SectionHeading title="\1" color={C.heading} />
           <div className="flex gap-6 items-start">
             {/* 干支画像 */}
             <div className="flex-shrink-0">
@@ -271,7 +265,7 @@ function ResultContent() {
 
         {/* ─── 2. 能力 ─────────────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="能力" />
+          <SectionHeading title="\1" color={C.heading} />
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr style={{ background: C.tableHeader }}>
@@ -314,7 +308,7 @@ function ResultContent() {
 
         {/* ─── 3. 運気の流れ ───────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="運気の流れ" />
+          <SectionHeading title="\1" color={C.heading} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 unki-grid">
             {/* 大運（10年スパン） */}
             <div>
@@ -382,7 +376,7 @@ function ResultContent() {
 
         {/* ─── 4. エネルギー値 ────────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="エネルギー値" />
+          <SectionHeading title="\1" color={C.heading} />
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr style={{ background: C.tableHeader }}>

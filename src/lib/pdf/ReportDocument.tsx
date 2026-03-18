@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import type { KanteiResult } from "@/types/sanmei";
 import { getKanshiMessage, getSyuseiMessage, getUnkiMessage } from "@/lib/report/messages";
+import { getGogyouTheme } from "@/lib/report/gogyouTheme";
 
 export function registerFonts(regularSrc: string, boldSrc: string) {
   Font.register({
@@ -20,51 +21,26 @@ export function registerFonts(regularSrc: string, boldSrc: string) {
   });
 }
 
-const C = {
-  bg: "#FAFAF6",
-  heading: "#2C3E2D",
-  border: "#C8D0C2",
-  rowAlt: "#F4F7F3",
-  highlight: "#FFF9E6",
-  tableHeader: "#E8EFE7",
-  text: "#1C2518",
-  textLight: "#6B7280",
-};
-
+// カラーに依存しない固定スタイル
 const s = StyleSheet.create({
   page: {
     fontFamily: "NotoSerifJP",
-    backgroundColor: C.bg,
     padding: 24,
     fontSize: 8,
-    color: C.text,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 700,
-    textAlign: "center",
-    letterSpacing: 6,
-    borderBottomWidth: 2,
-    borderBottomColor: C.heading,
-    paddingBottom: 6,
-    marginBottom: 4,
-    color: C.heading,
+    color: "#1C2518",
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: C.border,
     paddingBottom: 6,
     marginBottom: 10,
+    borderBottomWidth: 1,
   },
   infoName: { fontSize: 10 },
-  infoBirth: { fontSize: 8, color: C.textLight },
-
+  infoBirth: { fontSize: 8, color: "#6B7280" },
   sectionLabel: {
     fontSize: 9,
     fontWeight: 700,
-    backgroundColor: C.heading,
     color: "#fff",
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -75,57 +51,39 @@ const s = StyleSheet.create({
   },
   sectionBox: {
     borderWidth: 1,
-    borderColor: C.border,
     borderRadius: 5,
     padding: 8,
     marginBottom: 8,
   },
-
-  // 本質セクション
-  essenceRow: { flexDirection: "row", gap: 8 },
-  essenceName: { fontSize: 12, fontWeight: 700, color: C.heading },
-  essenceKanshi: { fontSize: 10, fontWeight: 700, color: C.heading, marginLeft: 4 },
+  essenceName: { fontSize: 12, fontWeight: 700 },
+  essenceKanshi: { fontSize: 10, fontWeight: 700, marginLeft: 4 },
   essenceBadge: {
     fontSize: 8,
     fontWeight: 700,
-    backgroundColor: C.tableHeader,
-    color: C.heading,
     paddingHorizontal: 4,
     paddingVertical: 1,
     borderRadius: 3,
     marginLeft: 4,
   },
   essenceMsg: { fontSize: 8, lineHeight: 1.6, color: "#374151", marginTop: 4 },
-
-  // テーブル
-  tableHeader: {
+  tableHeaderRow: {
     flexDirection: "row",
-    backgroundColor: C.tableHeader,
     paddingVertical: 3,
     paddingHorizontal: 2,
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
   },
-  tableHeaderText: { color: C.heading, fontSize: 7, fontWeight: 700 },
+  tableHeaderText: { fontSize: 7, fontWeight: 700 },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
     paddingVertical: 3,
     paddingHorizontal: 2,
   },
-  tableRowAlt: { backgroundColor: C.rowAlt },
-  tableRowHighlight: { backgroundColor: C.highlight },
   tableCell: { fontSize: 7 },
   tableCellBold: { fontSize: 7, fontWeight: 700 },
-  tableCellHead: { fontSize: 7, fontWeight: 700, color: C.heading },
-
-  // 運気グリッド（横並び2列）
+  tableCellHead: { fontSize: 7, fontWeight: 700 },
   unkiGrid: { flexDirection: "row", gap: 10 },
   unkiCol: { flex: 1 },
-  unkiColTitle: { fontSize: 8, fontWeight: 700, color: C.heading, marginBottom: 4 },
-
-  // 列幅
   colYear: { width: 40 },
   colStar: { width: 44 },
   colMsg: { flex: 1 },
@@ -134,11 +92,11 @@ const s = StyleSheet.create({
 });
 
 const POSITIONS = [
-  { key: "c" as const, line1: "中央", line2: "（本人）", posLabel: "中央" },
-  { key: "e" as const, line1: "東方", line2: "（仕事・未来）", posLabel: "東方" },
+  { key: "c" as const, line1: "中央", line2: "（本人）",          posLabel: "中央" },
+  { key: "e" as const, line1: "東方", line2: "（仕事・未来）",    posLabel: "東方" },
   { key: "w" as const, line1: "西方", line2: "（家庭・パートナー）", posLabel: "西方" },
   { key: "n" as const, line1: "北方", line2: "（目上・人生哲学）", posLabel: "北方" },
-  { key: "s" as const, line1: "南方", line2: "（目下・夢）", posLabel: "南方" },
+  { key: "s" as const, line1: "南方", line2: "（目下・夢）",      posLabel: "南方" },
 ] as const;
 
 interface Props {
@@ -152,6 +110,9 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
   const nichiKanshi = nichi.k + nichi.s;
   const kanshiMsg = getKanshiMessage(nichiKanshi);
   const gogyou = hm.cL + "性";
+
+  // 五行テーマ
+  const C = getGogyouTheme(hm.cL);
 
   const currentTaiun = taiun.list.find((t, i) => {
     const next = taiun.list[i + 1];
@@ -174,21 +135,25 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
 
   return (
     <Document>
-      <Page size="A4" style={s.page}>
+      <Page size="A4" style={[s.page, { backgroundColor: C.bg }]}>
         {/* タイトル */}
-        <Text style={s.title}>算 命 学 簡 易 レ ポ ー ト</Text>
+        <Text style={{
+          fontSize: 16, fontWeight: 700, textAlign: "center", letterSpacing: 6,
+          borderBottomWidth: 2, borderBottomColor: C.heading,
+          paddingBottom: 6, marginBottom: 4, color: C.heading,
+        }}>
+          算 命 学 簡 易 レ ポ ー ト
+        </Text>
 
         {/* 個人情報 */}
-        <View style={s.infoRow}>
+        <View style={[s.infoRow, { borderBottomColor: C.border }]}>
           <Text style={s.infoName}>お名前：{result.name} 様</Text>
-          <Text style={s.infoBirth}>
-            生年月日：{result.birthday}（{result.gender}）
-          </Text>
+          <Text style={s.infoBirth}>生年月日：{result.birthday}（{result.gender}）</Text>
         </View>
 
         {/* ─── 1. あなたの本質 ─── */}
-        <View style={s.sectionBox}>
-          <Text style={s.sectionLabel}>あなたの本質</Text>
+        <View style={[s.sectionBox, { borderColor: C.border }]}>
+          <Text style={[s.sectionLabel, { backgroundColor: C.heading }]}>あなたの本質</Text>
           <View style={{ flexDirection: "row", gap: 10 }}>
             {imageSrc && (
               <Image src={imageSrc} style={{ width: 70, height: 70, borderRadius: 4 }} />
@@ -197,37 +162,37 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
               {kanshiMsg ? (
                 <>
                   <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
-                    <Text style={s.essenceName}>{kanshiMsg.alias}</Text>
-                    <Text style={s.essenceKanshi}>（{nichiKanshi}）</Text>
-                    <Text style={s.essenceBadge}>{gogyou}</Text>
+                    <Text style={[s.essenceName, { color: C.heading }]}>{kanshiMsg.alias}</Text>
+                    <Text style={[s.essenceKanshi, { color: C.heading }]}>（{nichiKanshi}）</Text>
+                    <Text style={[s.essenceBadge, { backgroundColor: C.tableHeader, color: C.heading }]}>{gogyou}</Text>
                   </View>
                   <Text style={s.essenceMsg}>{kanshiMsg.message}</Text>
                 </>
               ) : (
-                <Text style={{ fontSize: 8, color: C.textLight }}>データが見つかりません</Text>
+                <Text style={{ fontSize: 8, color: "#6B7280" }}>データが見つかりません</Text>
               )}
             </View>
           </View>
         </View>
 
         {/* ─── 2. 能力 ─── */}
-        <View style={s.sectionBox}>
-          <Text style={s.sectionLabel}>能力</Text>
-          <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderText, s.colPos]}>方位（意味）</Text>
-            <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>
-            <Text style={[s.tableHeaderText, s.colMsg]}>メッセージ</Text>
+        <View style={[s.sectionBox, { borderColor: C.border }]}>
+          <Text style={[s.sectionLabel, { backgroundColor: C.heading }]}>能力</Text>
+          <View style={[s.tableHeaderRow, { backgroundColor: C.tableHeader, borderBottomColor: C.border }]}>
+            <Text style={[s.tableHeaderText, s.colPos, { color: C.heading }]}>方位（意味）</Text>
+            <Text style={[s.tableHeaderText, s.colStar, { color: C.heading }]}>主星</Text>
+            <Text style={[s.tableHeaderText, s.colMsg, { color: C.heading }]}>メッセージ</Text>
           </View>
           {POSITIONS.map(({ key, line1, line2, posLabel }, idx) => {
             const star = shusei[key];
             const msg = getSyuseiMessage(star, posLabel, gender);
             return (
-              <View key={key} style={[s.tableRow, idx % 2 !== 0 ? s.tableRowAlt : {}]}>
+              <View key={key} style={[s.tableRow, { borderBottomColor: C.border }, idx % 2 !== 0 ? { backgroundColor: C.rowAlt } : {}]}>
                 <View style={s.colPos}>
                   <Text style={s.tableCell}>{line1}</Text>
                   <Text style={s.tableCell}>{line2}</Text>
                 </View>
-                <Text style={[s.tableCellHead, s.colStar]}>{star}</Text>
+                <Text style={[s.tableCellHead, s.colStar, { color: C.heading }]}>{star}</Text>
                 <Text style={[s.tableCell, s.colMsg]}>{msg?.message ?? "—"}</Text>
               </View>
             );
@@ -235,15 +200,15 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
         </View>
 
         {/* ─── 3. 運気の流れ ─── */}
-        <View style={s.sectionBox}>
-          <Text style={s.sectionLabel}>運気の流れ</Text>
+        <View style={[s.sectionBox, { borderColor: C.border }]}>
+          <Text style={[s.sectionLabel, { backgroundColor: C.heading }]}>運気の流れ</Text>
           <View style={s.unkiGrid}>
             {/* 大運 */}
             <View style={s.unkiCol}>
-              <View style={s.tableHeader}>
-                <Text style={[s.tableHeaderText, s.colYear]}>開始年</Text>
-                <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>
-                <Text style={[s.tableHeaderText, s.colMsg]}>メッセージ</Text>
+              <View style={[s.tableHeaderRow, { backgroundColor: C.tableHeader, borderBottomColor: C.border }]}>
+                <Text style={[s.tableHeaderText, s.colYear, { color: C.heading }]}>開始年</Text>
+                <Text style={[s.tableHeaderText, s.colStar, { color: C.heading }]}>主星</Text>
+                <Text style={[s.tableHeaderText, s.colMsg, { color: C.heading }]}>メッセージ</Text>
               </View>
               {taiun.list.map((t) => {
                 const isCurrent = t === currentTaiun;
@@ -252,11 +217,9 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
                   ? unki.longTerm + (t.tenchu ? " ★" : "")
                   : t.tenchu ? "★" : "—";
                 return (
-                  <View key={t.startYear} style={[s.tableRow, isCurrent ? s.tableRowHighlight : {}]}>
-                    <Text style={[isCurrent ? s.tableCellBold : s.tableCell, s.colYear]}>
-                      {t.startYear}〜
-                    </Text>
-                    <Text style={[s.tableCellHead, s.colStar]}>{t.syusei}</Text>
+                  <View key={t.startYear} style={[s.tableRow, { borderBottomColor: C.border }, isCurrent ? { backgroundColor: C.highlight } : {}]}>
+                    <Text style={[isCurrent ? s.tableCellBold : s.tableCell, s.colYear]}>{t.startYear}〜</Text>
+                    <Text style={[s.tableCellHead, s.colStar, { color: C.heading }]}>{t.syusei}</Text>
                     <Text style={[s.tableCell, s.colMsg]}>{message}</Text>
                   </View>
                 );
@@ -265,10 +228,10 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
 
             {/* 年運 */}
             <View style={s.unkiCol}>
-              <View style={s.tableHeader}>
-                <Text style={[s.tableHeaderText, s.colYear]}>年</Text>
-                <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>
-                <Text style={[s.tableHeaderText, s.colMsg]}>メッセージ</Text>
+              <View style={[s.tableHeaderRow, { backgroundColor: C.tableHeader, borderBottomColor: C.border }]}>
+                <Text style={[s.tableHeaderText, s.colYear, { color: C.heading }]}>年</Text>
+                <Text style={[s.tableHeaderText, s.colStar, { color: C.heading }]}>主星</Text>
+                <Text style={[s.tableHeaderText, s.colMsg, { color: C.heading }]}>メッセージ</Text>
               </View>
               {nearNenun.map((n) => {
                 const isCurrent = n.year === currentYear;
@@ -277,11 +240,9 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
                   ? unki.shortTerm + (n.tenchu ? " ★" : "")
                   : n.tenchu ? "★" : "—";
                 return (
-                  <View key={n.year} style={[s.tableRow, isCurrent ? s.tableRowHighlight : {}]}>
-                    <Text style={[isCurrent ? s.tableCellBold : s.tableCell, s.colYear]}>
-                      {n.year}〜
-                    </Text>
-                    <Text style={[s.tableCellHead, s.colStar]}>{n.syusei}</Text>
+                  <View key={n.year} style={[s.tableRow, { borderBottomColor: C.border }, isCurrent ? { backgroundColor: C.highlight } : {}]}>
+                    <Text style={[isCurrent ? s.tableCellBold : s.tableCell, s.colYear]}>{n.year}〜</Text>
+                    <Text style={[s.tableCellHead, s.colStar, { color: C.heading }]}>{n.syusei}</Text>
                     <Text style={[s.tableCell, s.colMsg]}>{message}</Text>
                   </View>
                 );
@@ -291,11 +252,11 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
         </View>
 
         {/* ─── 4. エネルギー値 ─── */}
-        <View style={s.sectionBox}>
-          <Text style={s.sectionLabel}>エネルギー値</Text>
-          <View style={[s.tableHeader, { borderBottomWidth: 1 }]}>
+        <View style={[s.sectionBox, { borderColor: C.border }]}>
+          <Text style={[s.sectionLabel, { backgroundColor: C.heading }]}>エネルギー値</Text>
+          <View style={[s.tableHeaderRow, { backgroundColor: C.tableHeader, borderBottomColor: C.border }]}>
             {["総合計", "守備（木性）", "伝達（火性）", "引力（土性）", "攻撃（金性）", "習得（水性）"].map((h) => (
-              <Text key={h} style={[s.tableHeaderText, s.colEnergy]}>{h}</Text>
+              <Text key={h} style={[s.tableHeaderText, s.colEnergy, { color: C.heading }]}>{h}</Text>
             ))}
           </View>
           <View style={[s.tableRow, { borderBottomWidth: 0 }]}>
@@ -312,7 +273,7 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
               </Text>
             ))}
           </View>
-          <Text style={{ fontSize: 7, color: C.textLight, marginTop: 4 }}>
+          <Text style={{ fontSize: 7, color: "#6B7280", marginTop: 4 }}>
             守備：自己保全力 / 伝達：表現・発信力 / 引力：財運・引き寄せ力 / 攻撃：行動・突破力 / 習得：学習・吸収力
           </Text>
         </View>
