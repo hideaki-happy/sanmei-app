@@ -156,7 +156,7 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
           <Text style={[s.sectionLabel, { backgroundColor: C.heading }]}>あなたの本質</Text>
           <View style={{ flexDirection: "row", gap: 10 }}>
             {imageSrc && (
-              <Image src={imageSrc} style={{ width: 70, height: 70, borderRadius: 4 }} />
+              <Image src={imageSrc} style={{ width: 56, height: 80, borderRadius: 4 }} />
             )}
             <View style={{ flex: 1 }}>
               {kanshiMsg ? (

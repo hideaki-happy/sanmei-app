@@ -230,9 +230,9 @@ function ResultContent() {
                 src={imageSrc}
                 alt={nichiKanshi}
                 width={150}
-                height={150}
+                height={212}
                 className="rounded-lg border"
-                style={{ borderColor: C.border }}
+                style={{ borderColor: C.border, objectFit: "cover" }}
                 onError={() => {}}
               />
             </div>
