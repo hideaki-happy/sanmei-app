@@ -5,7 +5,11 @@
       "Bash(npm run:*)",
       "Bash(pkill -f \"next dev\" 2>/dev/null; true)",
       "Bash(find /System/Library/Fonts -name \"*.otf\" -o -name \"*.ttf\" 2>/dev/null | grep -i \"hiragino\\\\|mincho\" | head -10)",
-      "Bash(node -e \"\nconst fs = require\\('fs'\\);\nconst buf = fs.readFileSync\\('/Users/hide0626/Desktop/ClaudeCode/sanmei-app/public/fonts/NotoSerifJP-Regular.ttf'\\);\nconsole.log\\('size:', buf.length\\);\nconsole.log\\('magic:', buf.slice\\(0,4\\).toString\\('hex'\\)\\);\n\")"
+      "Bash(node -e \"\nconst fs = require\\('fs'\\);\nconst buf = fs.readFileSync\\('/Users/hide0626/Desktop/ClaudeCode/sanmei-app/public/fonts/NotoSerifJP-Regular.ttf'\\);\nconsole.log\\('size:', buf.length\\);\nconsole.log\\('magic:', buf.slice\\(0,4\\).toString\\('hex'\\)\\);\n\")",
+      "Bash(rm -rf .next)",
+      "Bash(npx tsc:*)",
+      "Bash(xargs kill:*)",
+      "Bash(kill -9 59629)"
     ]
   }
 }
