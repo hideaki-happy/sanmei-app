@@ -138,14 +138,15 @@ function ResultContent() {
     (n) => n.year >= currentYear && n.year < currentYear + 12,
   );
 
-  // エネルギー値（八門法の方位値を5カテゴリに対応）
+  // エネルギー値（suuriBreakdownを五行ごとに集計・固定マッピング）
+  const bd = result.suuriBreakdown;
   const energy = {
-    total: result.suuriTotal,
-    shuubi: hm.cV,   // 守備 = 中央（自分と同じ五行）
-    dentatsu: hm.sV, // 伝達 = 南方（自分が生む）
-    inryoku: hm.eV,  // 引力 = 東方（自分が剋す）
-    kougeki: hm.wV,  // 攻撃 = 西方（自分を剋す）
-    shutoku: hm.nV,  // 習得 = 北方（自分を生む）
+    total:    result.suuriTotal,
+    shuubi:   (bd["甲"] ?? 0) + (bd["乙"] ?? 0), // 守備（木性）
+    dentatsu: (bd["丙"] ?? 0) + (bd["丁"] ?? 0), // 伝達（火性）
+    inryoku:  (bd["戊"] ?? 0) + (bd["己"] ?? 0), // 引力（土性）
+    kougeki:  (bd["庚"] ?? 0) + (bd["辛"] ?? 0), // 攻撃（金性）
+    shutoku:  (bd["壬"] ?? 0) + (bd["癸"] ?? 0), // 習得（水性）
   };
 
   return (
