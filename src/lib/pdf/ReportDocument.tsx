@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
@@ -133,19 +134,20 @@ const s = StyleSheet.create({
 });
 
 const POSITIONS = [
-  { key: "c" as const, label: "中央（本人）", posLabel: "中央" },
-  { key: "e" as const, label: "東方（仕事・未来）", posLabel: "東方" },
-  { key: "w" as const, label: "西方（家庭・パートナー）", posLabel: "西方" },
-  { key: "n" as const, label: "北方（目上・人生哲学）", posLabel: "北方" },
-  { key: "s" as const, label: "南方（目下・夢）", posLabel: "南方" },
+  { key: "c" as const, line1: "中央", line2: "（本人）", posLabel: "中央" },
+  { key: "e" as const, line1: "東方", line2: "（仕事・未来）", posLabel: "東方" },
+  { key: "w" as const, line1: "西方", line2: "（家庭・パートナー）", posLabel: "西方" },
+  { key: "n" as const, line1: "北方", line2: "（目上・人生哲学）", posLabel: "北方" },
+  { key: "s" as const, line1: "南方", line2: "（目下・夢）", posLabel: "南方" },
 ] as const;
 
 interface Props {
   result: KanteiResult;
   currentYear: number;
+  imageSrc?: string;
 }
 
-export function ReportDocument({ result, currentYear }: Props) {
+export function ReportDocument({ result, currentYear, imageSrc }: Props) {
   const { nichi, shusei, hachimon: hm, taiun, nenun, gender } = result;
   const nichiKanshi = nichi.k + nichi.s;
   const kanshiMsg = getKanshiMessage(nichiKanshi);
@@ -187,34 +189,44 @@ export function ReportDocument({ result, currentYear }: Props) {
         {/* ─── 1. あなたの本質 ─── */}
         <View style={s.sectionBox}>
           <Text style={s.sectionLabel}>あなたの本質</Text>
-          {kanshiMsg ? (
-            <>
-              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
-                <Text style={s.essenceName}>{kanshiMsg.alias}</Text>
-                <Text style={s.essenceKanshi}>（{nichiKanshi}）</Text>
-                <Text style={s.essenceBadge}>{gogyou}</Text>
-              </View>
-              <Text style={s.essenceMsg}>{kanshiMsg.message}</Text>
-            </>
-          ) : (
-            <Text style={{ fontSize: 8, color: C.textLight }}>データが見つかりません</Text>
-          )}
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            {imageSrc && (
+              <Image src={imageSrc} style={{ width: 70, height: 70, borderRadius: 4 }} />
+            )}
+            <View style={{ flex: 1 }}>
+              {kanshiMsg ? (
+                <>
+                  <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
+                    <Text style={s.essenceName}>{kanshiMsg.alias}</Text>
+                    <Text style={s.essenceKanshi}>（{nichiKanshi}）</Text>
+                    <Text style={s.essenceBadge}>{gogyou}</Text>
+                  </View>
+                  <Text style={s.essenceMsg}>{kanshiMsg.message}</Text>
+                </>
+              ) : (
+                <Text style={{ fontSize: 8, color: C.textLight }}>データが見つかりません</Text>
+              )}
+            </View>
+          </View>
         </View>
 
         {/* ─── 2. 能力 ─── */}
         <View style={s.sectionBox}>
           <Text style={s.sectionLabel}>能力</Text>
           <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderText, s.colPos]}>方位・意味</Text>
+            <Text style={[s.tableHeaderText, s.colPos]}>方位（意味）</Text>
             <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>
             <Text style={[s.tableHeaderText, s.colMsg]}>メッセージ</Text>
           </View>
-          {POSITIONS.map(({ key, label, posLabel }, idx) => {
+          {POSITIONS.map(({ key, line1, line2, posLabel }, idx) => {
             const star = shusei[key];
             const msg = getSyuseiMessage(star, posLabel, gender);
             return (
               <View key={key} style={[s.tableRow, idx % 2 !== 0 ? s.tableRowAlt : {}]}>
-                <Text style={[s.tableCell, s.colPos]}>{label}</Text>
+                <View style={s.colPos}>
+                  <Text style={s.tableCell}>{line1}</Text>
+                  <Text style={s.tableCell}>{line2}</Text>
+                </View>
                 <Text style={[s.tableCellHead, s.colStar]}>{star}</Text>
                 <Text style={[s.tableCell, s.colMsg]}>{msg?.message ?? "—"}</Text>
               </View>
@@ -228,7 +240,6 @@ export function ReportDocument({ result, currentYear }: Props) {
           <View style={s.unkiGrid}>
             {/* 大運 */}
             <View style={s.unkiCol}>
-              <Text style={s.unkiColTitle}>大運（10年スパン）</Text>
               <View style={s.tableHeader}>
                 <Text style={[s.tableHeaderText, s.colYear]}>開始年</Text>
                 <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>
@@ -254,7 +265,6 @@ export function ReportDocument({ result, currentYear }: Props) {
 
             {/* 年運 */}
             <View style={s.unkiCol}>
-              <Text style={s.unkiColTitle}>年運（直近12年）</Text>
               <View style={s.tableHeader}>
                 <Text style={[s.tableHeaderText, s.colYear]}>年</Text>
                 <Text style={[s.tableHeaderText, s.colStar]}>主星</Text>

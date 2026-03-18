@@ -24,9 +24,22 @@ export async function POST(req: NextRequest) {
   };
   registerFonts(toDataUrl("NotoSerifJP-Regular.ttf"), toDataUrl("NotoSerifJP-Bold.ttf"));
 
+  // 干支画像を base64 で読み込む
+  const imageId = String(result.nichi.id).padStart(2, "0");
+  const nichiKanshi = result.nichi.k + result.nichi.s;
+  let imageSrc: string | undefined;
+  try {
+    const imgBuf = readFileSync(
+      path.join(process.cwd(), "public", "image", "kanshi", `${imageId}_${nichiKanshi}.png`)
+    );
+    imageSrc = `data:image/png;base64,${imgBuf.toString("base64")}`;
+  } catch {
+    // 画像が見つからない場合はスキップ
+  }
+
   let buffer: Buffer;
   try {
-    const element = createElement(ReportDocument, { result, currentYear: cyear }) as ReactElement<DocumentProps>;
+    const element = createElement(ReportDocument, { result, currentYear: cyear, imageSrc }) as ReactElement<DocumentProps>;
     buffer = await renderToBuffer(element);
   } catch (e) {
     console.error("[PDF-REPORT ERROR]", e);
