@@ -6,30 +6,42 @@ import { isRateLimited } from "@/lib/rateLimit";
 const RATE_LIMIT = { limit: 30, windowMs: 60_000 };
 
 export async function GET(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json({ error: "サーバー設定エラーです" }, { status: 500 });
+    }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (isRateLimited(ip, RATE_LIMIT)) {
-    return NextResponse.json({ error: "リクエストが多すぎます。しばらくお待ちください。" }, { status: 429 });
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (isRateLimited(ip, RATE_LIMIT)) {
+      return NextResponse.json({ error: "リクエストが多すぎます。しばらくお待ちください。" }, { status: 429 });
+    }
+
+    const sessionId = req.nextUrl.searchParams.get("session_id");
+
+    if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) {
+      return NextResponse.json({ error: "session_id が不正です" }, { status: 400 });
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== "paid") {
+      return NextResponse.json({ error: "決済が完了していません" }, { status: 402 });
+    }
+
+    const { name, birthday, gender } = session.metadata ?? {};
+
+    if (!birthday || !gender) {
+      return NextResponse.json({ error: "セッションデータが不正です" }, { status: 400 });
+    }
+
+    return NextResponse.json({ name, birthday, gender });
+  } catch (e) {
+    console.error("[verify error]", e);
+    return NextResponse.json(
+      { error: "決済確認に失敗しました" },
+      { status: 500 }
+    );
   }
-
-  const sessionId = req.nextUrl.searchParams.get("session_id");
-
-  if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) {
-    return NextResponse.json({ error: "session_id が不正です" }, { status: 400 });
-  }
-
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-  if (session.payment_status !== "paid") {
-    return NextResponse.json({ error: "決済が完了していません" }, { status: 402 });
-  }
-
-  const { name, birthday, gender } = session.metadata ?? {};
-
-  if (!birthday || !gender) {
-    return NextResponse.json({ error: "セッションデータが不正です" }, { status: 400 });
-  }
-
-  return NextResponse.json({ name, birthday, gender });
 }
