@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { isRateLimited } from "@/lib/rateLimit";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 // 1分間に30回まで（リダイレクト直後に呼ばれるため少し緩め）
 const RATE_LIMIT = { limit: 30, windowMs: 60_000 };
 
 export async function GET(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip, RATE_LIMIT)) {
     return NextResponse.json({ error: "リクエストが多すぎます。しばらくお待ちください。" }, { status: 429 });

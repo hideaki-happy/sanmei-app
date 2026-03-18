@@ -3,12 +3,12 @@ import Stripe from "stripe";
 import { isRateLimited } from "@/lib/rateLimit";
 import { validateKanteiInput } from "@/lib/validateInput";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 // 1分間に10回まで
 const RATE_LIMIT = { limit: 10, windowMs: 60_000 };
 
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip, RATE_LIMIT)) {
     return NextResponse.json({ error: "リクエストが多すぎます。しばらくお待ちください。" }, { status: 429 });
