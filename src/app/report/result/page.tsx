@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import type { KanteiResult } from "@/types/sanmei";
@@ -55,6 +55,11 @@ function ResultContent() {
   const [result, setResult] = useState<KanteiResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [autoDownload, setAutoDownload] = useState(false);
+  const birthdayRef = useRef("");
+  const genderRef = useRef("");
+  const nameRef = useRef("");
 
   const currentYear = new Date().getFullYear();
 
@@ -72,12 +77,15 @@ function ResultContent() {
         return res.json();
       })
       .then(({ name, birthday, gender }) => {
+        birthdayRef.current = birthday;
+        genderRef.current = gender;
+        nameRef.current = name;
+
         const [y, m, d] = birthday.split("-");
         const r = processKantei({ name, year: y, month: m, day: d, gender });
         if (!r) throw new Error("対応範囲外の年です（1874〜2050）");
         setResult(r);
-        // 決済完了後に自動で印刷ダイアログ（PDF保存）を開く
-        setTimeout(() => window.print(), 800);
+        setAutoDownload(true);
       })
       .catch((e) => {
         if (e.message === "payment_required") {
@@ -88,6 +96,46 @@ function ResultContent() {
       })
       .finally(() => setLoading(false));
   }, [searchParams, router]);
+
+  const downloadPdf = useCallback(async () => {
+    if (!result) return;
+    setPdfLoading(true);
+    try {
+      const [y, m, d] = birthdayRef.current.split("-");
+      const res = await fetch("/api/pdf-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          year: y,
+          month: m,
+          day: d,
+          gender: genderRef.current,
+          name: nameRef.current,
+          currentYear,
+        }),
+      });
+      if (!res.ok) throw new Error("PDF生成に失敗しました");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `report_${result.name}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "エラーが発生しました");
+    } finally {
+      setPdfLoading(false);
+    }
+  }, [result, currentYear]);
+
+  // 決済完了後に自動ダウンロード
+  useEffect(() => {
+    if (autoDownload && result) {
+      setAutoDownload(false);
+      downloadPdf();
+    }
+  }, [autoDownload, result, downloadPdf]);
 
   if (loading) {
     return (
@@ -125,7 +173,6 @@ function ResultContent() {
   const kanshiMsg = getKanshiMessage(nichiKanshi);
   const imageId = String(nichi.id).padStart(2, "0");
   const imageSrc = `/image/kanshi/${imageId}_${nichiKanshi}.png`;
-  const birthYear = parseInt(result.birthday.split("年")[0]);
   // 日干の五行（hm.cLは自分と同じ五行 = 日干の五行）
   const gogyou = hm.cL + "性";
 
@@ -153,19 +200,9 @@ function ResultContent() {
 
   return (
     <div
-      className="min-h-screen p-4 md:p-8 print-root"
+      className="min-h-screen p-4 md:p-8"
       style={{ background: C.bg, fontFamily: "'Noto Serif JP', serif", color: "#1C2518" }}
     >
-      <style>{`
-        @media print {
-          @page { size: A4; margin: 6mm; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .no-print { display: none !important; }
-          .print-root { padding: 0 !important; }
-          .print-root > div { max-width: 100% !important; zoom: 0.59; }
-          .unki-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
-        }
-      `}</style>
       <div className="max-w-3xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
@@ -397,18 +434,16 @@ function ResultContent() {
           </p>
         </div>
 
-        {/* 印刷ボタン */}
+        {/* PDFダウンロードボタン */}
         <div className="text-center pb-8 no-print">
           <button
-            onClick={() => window.print()}
-            className="px-8 py-3 text-white rounded-lg text-sm font-semibold tracking-widest hover:opacity-85 transition-opacity"
+            onClick={downloadPdf}
+            disabled={pdfLoading}
+            className="px-8 py-3 text-white rounded-lg text-sm font-semibold tracking-widest hover:opacity-85 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: C.heading, fontFamily: "inherit" }}
           >
-            印刷 / PDF保存
+            {pdfLoading ? "生成中…" : "PDF 出力"}
           </button>
-          <p className="text-xs text-stone-400 mt-2">
-            ブラウザの印刷機能でPDFとして保存できます
-          </p>
         </div>
       </div>
     </div>
