@@ -222,7 +222,7 @@ function ResultContent() {
 
         {/* ─── 1. あなたの本質 ──────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="\1" color={C.heading} />
+          <SectionHeading title="あなたの本質" color={C.heading} />
           <div className="flex gap-6 items-start">
             {/* 干支画像 */}
             <div className="flex-shrink-0">
@@ -265,7 +265,7 @@ function ResultContent() {
 
         {/* ─── 2. 能力 ─────────────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="\1" color={C.heading} />
+          <SectionHeading title="能力" color={C.heading} />
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr style={{ background: C.tableHeader }}>
@@ -308,7 +308,7 @@ function ResultContent() {
 
         {/* ─── 3. 運気の流れ ───────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="\1" color={C.heading} />
+          <SectionHeading title="運気の流れ" color={C.heading} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 unki-grid">
             {/* 大運（10年スパン） */}
             <div>
@@ -376,7 +376,7 @@ function ResultContent() {
 
         {/* ─── 4. エネルギー値 ────────────────────────────── */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
-          <SectionHeading title="\1" color={C.heading} />
+          <SectionHeading title="エネルギー値" color={C.heading} />
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr style={{ background: C.tableHeader }}>
