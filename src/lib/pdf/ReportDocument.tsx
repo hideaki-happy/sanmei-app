@@ -274,7 +274,7 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
             ))}
           </View>
           <Text style={{ fontSize: 7, color: "#6B7280", marginTop: 4 }}>
-            守備：自己保全力 / 伝達：表現・発信力 / 引力：財運・引き寄せ力 / 攻撃：行動・突破力 / 習得：学習・吸収力
+            守備：自立力・信念の強さ / 伝達：表現・発信力 / 引力：財運・引き寄せ力 / 攻撃：行動・突破力 / 習得：学習・吸収力
           </Text>
         </View>
       </Page>
