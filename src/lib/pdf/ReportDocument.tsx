@@ -142,7 +142,7 @@ export function ReportDocument({ result, currentYear, imageSrc }: Props) {
           borderBottomWidth: 2, borderBottomColor: C.heading,
           paddingBottom: 6, marginBottom: 4, color: C.heading,
         }}>
-          算 命 学 簡 易 レ ポ ー ト
+          算 命 学 パ ー ソ ナ リ テ ィ レ ポ ー ト
         </Text>
 
         {/* 個人情報 */}

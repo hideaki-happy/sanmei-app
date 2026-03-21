@@ -204,7 +204,7 @@ function ResultContent() {
             className="text-center text-2xl font-bold pb-3 border-b-2 tracking-[0.5em]"
             style={{ color: C.heading, borderColor: C.heading }}
           >
-            算 命 学 簡 易 レ ポ ー ト
+            算 命 学 パ ー ソ ナ リ テ ィ レ ポ ー ト
           </h1>
           <div className="flex justify-between mt-4 text-sm flex-wrap gap-2">
             <div>

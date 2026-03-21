@@ -37,10 +37,10 @@ export default function ReportPage() {
             className="text-center text-3xl font-bold pb-4 border-b-2"
             style={{ color: "#2C3E2D", borderColor: "#2C3E2D", letterSpacing: "0.4em" }}
           >
-            簡 易 レ ポ ー ト
+            パ ー ソ ナ リ テ ィ レ ポ ー ト
           </h1>
           <p className="text-center text-xs text-stone-400 mt-2 tracking-widest">
-            算命学・簡易鑑定システム
+            算命学・パーソナリティ鑑定システム
           </p>
 
           <div className="flex flex-col gap-4 mt-8">

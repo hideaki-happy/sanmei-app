@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "jpy",
             product_data: {
-              name: "算命学 簡易レポート",
-              description: "算命学による簡易鑑定レポート",
+              name: "算命学 パーソナリティレポート",
+              description: "算命学によるパーソナリティ鑑定レポート",
             },
             unit_amount: 1000,
           },
