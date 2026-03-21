@@ -34,10 +34,10 @@ export default function ReportPage() {
       <div className="max-w-lg mx-auto">
         <div className="bg-white rounded-xl p-10 shadow-sm border border-stone-200 mt-16">
           <h1
-            className="text-center text-3xl font-bold pb-4 border-b-2"
-            style={{ color: "#2C3E2D", borderColor: "#2C3E2D", letterSpacing: "0.4em" }}
+            className="text-center text-3xl font-bold pb-4 border-b-2 leading-snug"
+            style={{ color: "#2C3E2D", borderColor: "#2C3E2D", letterSpacing: "0.3em" }}
           >
-            パ ー ソ ナ リ テ ィ レ ポ ー ト
+            算命学<br />パーソナリティ<br />レポート
           </h1>
           <p className="text-center text-xs text-stone-400 mt-2 tracking-widest">
             算命学・パーソナリティ鑑定システム

@@ -201,10 +201,10 @@ function ResultContent() {
         {/* ヘッダー */}
         <div className="bg-white rounded-xl p-8 shadow-sm border mb-6" style={{ borderColor: C.border }}>
           <h1
-            className="text-center text-2xl font-bold pb-3 border-b-2 tracking-[0.5em]"
+            className="text-center text-2xl font-bold pb-3 border-b-2 tracking-[0.15em] whitespace-nowrap"
             style={{ color: C.heading, borderColor: C.heading }}
           >
-            算 命 学 パ ー ソ ナ リ テ ィ レ ポ ー ト
+            算命学パーソナリティレポート
           </h1>
           <div className="flex justify-between mt-4 text-sm flex-wrap gap-2">
             <div>
