@@ -90,7 +90,7 @@ export default function ReportPage() {
             onClick={handleSubmit}
             disabled={loading || !birthday}
           >
-            {loading ? "処理中…" : "レ ポ ー ト を 作 成（1,000円）"}
+            {loading ? "処理中…" : "レ ポ ー ト を 作 成（1,100円）"}
           </button>
 
           <p className="text-center text-xs text-stone-400 mt-4">

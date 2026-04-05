@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
               name: "算命学 宿命鑑定",
               description: "算命学による本格鑑定書（PDF付き）",
             },
-            unit_amount: 1000,
+            unit_amount: 1100,
           },
           quantity: 1,
         },

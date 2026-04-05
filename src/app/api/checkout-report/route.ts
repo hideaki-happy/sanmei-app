@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
               name: "算命学 パーソナリティレポート",
               description: "算命学によるパーソナリティ鑑定レポート",
             },
-            unit_amount: 1000,
+            unit_amount: 1100,
           },
           quantity: 1,
         },

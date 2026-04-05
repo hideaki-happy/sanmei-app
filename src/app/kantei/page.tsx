@@ -83,7 +83,7 @@ export default function KanteiPage() {
             onClick={handleSubmit}
             disabled={loading || !birthday}
           >
-            {loading ? "処理中…" : "鑑 定 す る（1,000円）"}
+            {loading ? "処理中…" : "鑑 定 す る（1,100円）"}
           </button>
 
           <p className="text-center text-xs text-stone-400 mt-4">
