@@ -52,6 +52,7 @@ function ResultContent() {
   const birthdayRef = useRef("");
   const genderRef = useRef("");
   const nameRef = useRef("");
+  const sessionIdRef = useRef("");
 
   const currentYear = new Date().getFullYear();
   const C = getGogyouTheme(element);
@@ -62,6 +63,7 @@ function ResultContent() {
       router.replace("/report");
       return;
     }
+    sessionIdRef.current = sessionId;
 
     fetch(`/api/verify?session_id=${sessionId}`)
       .then((res) => {
@@ -95,16 +97,11 @@ function ResultContent() {
     if (!result) return;
     setPdfLoading(true);
     try {
-      const [y, m, d] = birthdayRef.current.split("-");
       const res = await fetch("/api/pdf-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          year: y,
-          month: m,
-          day: d,
-          gender: genderRef.current,
-          name: nameRef.current,
+          session_id: sessionIdRef.current,
           currentYear,
         }),
       });

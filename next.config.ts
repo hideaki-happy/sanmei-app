@@ -26,7 +26,9 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js インライン スクリプト + Stripe.js
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+      // 'unsafe-eval' は本番では不要なので削除（XSSリスク軽減）
+      // もし本番で動作しない場合のみ 'unsafe-eval' を戻す
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
       // スタイル
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // フォント
